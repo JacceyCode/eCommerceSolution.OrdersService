@@ -1,5 +1,6 @@
 using AutoMapper;
 using BusinessLogicLayer.DTO;
+using BusinessLogicLayer.HttpClients;
 using BusinessLogicLayer.ServiceContracts;
 using DataAccessLayer.Entities;
 using DataAccessLayer.RepositoryContracts;
@@ -17,8 +18,9 @@ public class OrdersService : IOrdersService
     private readonly IValidator<OrderItemAddRequest> _orderItemAddRequestValidator;
     private readonly IValidator<OrderUpdateRequest> _orderUpdateRequestValidator;
     private readonly IValidator<OrderItemUpdateRequest> _orderItemUpdateRequestValidator;
+    private readonly UsersMicroserviceClient _usersMicroserviceClient;
 
-    public OrdersService(IOrdersRepository ordersRepository, IMapper mapper, IValidator<OrderAddRequest> orderAddRequestValidator, IValidator<OrderItemAddRequest> orderItemAddRequestValidator, IValidator<OrderUpdateRequest> orderUpdateRequestValidator, IValidator<OrderItemUpdateRequest> orderItemUpdateRequestValidator)
+    public OrdersService(IOrdersRepository ordersRepository, IMapper mapper, IValidator<OrderAddRequest> orderAddRequestValidator, IValidator<OrderItemAddRequest> orderItemAddRequestValidator, IValidator<OrderUpdateRequest> orderUpdateRequestValidator, IValidator<OrderItemUpdateRequest> orderItemUpdateRequestValidator, UsersMicroserviceClient usersMicroserviceClient)
     {
         _ordersRepository = ordersRepository;
         _mapper = mapper;
@@ -26,6 +28,7 @@ public class OrdersService : IOrdersService
         _orderItemAddRequestValidator = orderItemAddRequestValidator;
         _orderUpdateRequestValidator = orderUpdateRequestValidator;
         _orderItemUpdateRequestValidator = orderItemUpdateRequestValidator;
+        _usersMicroserviceClient = usersMicroserviceClient;
     }
 
     public async Task<OrderResponse?> AddOrder(OrderAddRequest orderAddRequest)
@@ -55,7 +58,11 @@ public class OrdersService : IOrdersService
             }
         }
 
-        //TO DO: Add logic for checking if UserID exists in Users microservice
+        // Check if UserID exists in Users microservice
+        UserDTO? user = await _usersMicroserviceClient.GetUserById(orderAddRequest.UserID);
+        if (user == null) {
+            throw new ArgumentException("Invalid User ID");
+        }
 
 
         //Convert data from OrderAddRequest to Order
@@ -113,7 +120,12 @@ public class OrdersService : IOrdersService
             }
         }
 
-        //TO DO: Add logic for checking if UserID exists in Users microservice
+        // Check if UserID exists in Users microservice
+        UserDTO? user = await _usersMicroserviceClient.GetUserById(orderUpdateRequest.UserID);
+        if (user == null)
+        {
+            throw new ArgumentException("Invalid User ID");
+        }
 
 
         //Convert data from OrderUpdateRequest to Order

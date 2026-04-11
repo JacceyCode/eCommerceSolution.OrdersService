@@ -1,0 +1,111 @@
+name: dotnet-ecommerce-microservice
+
+services:
+  mongodb-container:
+    image: mongo:latest
+    restart: unless-stopped
+    ports:
+      - "27018:27017"
+    volumes:
+      - ../mongo-init:/docker-entrypoint-initdb.d
+    networks:
+      - orders-microservice-network
+
+  ordersservice.api:
+    image: ordersserviceapi
+    build:
+      context: .
+      dockerfile: OrdersService.API/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__MongoDB=${ORDERS_DB_CONNECTION_STRING}
+      - UsersMicroserviceName=${USERS_MICROSERVICE_NAME}
+      - UsersMicroservicePort=${USERS_MICROSERVICE_PORT}
+      - MongoDBDatabaseName=${MONGODB_DATABASE_NAME}
+    env_file:
+      - .env
+    ports:
+      - "7000:8080"
+    depends_on:
+      - mongodb-container
+    networks:
+      - orders-microservice-network
+      - ecommerce-network
+
+  mysql-container:
+    image: mysql:latest
+    restart: unless-stopped
+    environment:
+      - MYSQL_ROOT_PASSWORD=${PRODUCTS_DATABASE_ROOT_PASSWORD}
+    env_file:
+      - .env
+    ports:
+      - "3307:3306"
+    volumes:
+      - ../mysql-init:/docker-entrypoint-initdb.d
+    networks:
+      - products-microservice-network
+
+  products-microservice:
+    image: productsserviceapi
+    build:
+      context: ../eCommerceSolution.ProductsService
+      dockerfile: ProductsService.API/Dockerfile
+    ports:
+      - "6000:8080"
+    environment:
+      - ASPNETCORE_HTTP_PORTS=8080
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=${PRODUCTS_DB_CONNECTION_STRING}
+    env_file:
+      - .env
+    depends_on:
+      - mysql-container
+    networks:
+      - products-microservice-network
+      - ecommerce-network
+
+  postgres-container:
+    image: postgres:latest
+    restart: unless-stopped
+    environment:
+      - POSTGRES_PASSWORD=${USERS_DATABASE_ROOT_PASSWORD}
+      # this line creates the database automatically when the container starts, using the value from the .env file
+      - POSTGRES_DB=${USERS_DATABASE}
+    env_file:
+      - .env
+    ports:
+      - "5433:5432"
+    volumes:
+      - ../postgres-init:/docker-entrypoint-initdb.d
+    networks:
+      - users-microservice-network
+
+  users-microservice:
+    image: usersserviceapi
+    build:
+      context: ../eCommerceSolution.UsersService
+      dockerfile: eCommerce.API/Dockerfile
+    ports:
+      - "5000:8080"
+    environment:
+      - ASPNETCORE_HTTP_PORTS=8080
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__PostgresConnection=${USERS_DB_CONNECTION_STRING}
+    env_file:
+      - .env
+    depends_on:
+      - postgres-container
+    networks:
+      - users-microservice-network
+      - ecommerce-network
+
+networks:
+  ecommerce-network:
+    driver: bridge
+  products-microservice-network:
+    driver: bridge
+  users-microservice-network:
+    driver: bridge
+  orders-microservice-network:
+    driver: bridge

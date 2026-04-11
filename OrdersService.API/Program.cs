@@ -1,4 +1,5 @@
 using BusinessLogicLayer;
+using BusinessLogicLayer.HttpClients;
 using DataAccessLayer;
 using OrdersService.API.Middleware;
 using System.Text.Json.Serialization;
@@ -34,6 +35,15 @@ builder.Services.AddCors(options =>
                .AllowAnyHeader()
                .AllowCredentials();
     });
+});
+
+// Add HttpClient for UsersMicroserviceClient
+builder.Services.AddHttpClient<UsersMicroserviceClient>(client =>
+{
+    string host = builder.Configuration["UsersMicroserviceName"] ?? "localhost";
+    string port = builder.Configuration["UsersMicroservicePort"] ?? "8080";
+
+    client.BaseAddress = new Uri($"http://{host}:{port}");
 });
 
 var app = builder.Build();
