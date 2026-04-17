@@ -21,6 +21,8 @@ services:
       - ConnectionStrings__MongoDB=${ORDERS_DB_CONNECTION_STRING}
       - UsersMicroserviceName=${USERS_MICROSERVICE_NAME}
       - UsersMicroservicePort=${USERS_MICROSERVICE_PORT}
+      - ProductsMicroserviceName=${PRODUCTS_MICROSERVICE_NAME}
+      - ProductsMicroservicePort=${PRODUCTS_MICROSERVICE_PORT}
       - MongoDBDatabaseName=${MONGODB_DATABASE_NAME}
     env_file:
       - .env

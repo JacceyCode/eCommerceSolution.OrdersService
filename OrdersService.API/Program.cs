@@ -43,7 +43,16 @@ builder.Services.AddHttpClient<UsersMicroserviceClient>(client =>
     string host = builder.Configuration["UsersMicroserviceName"] ?? "localhost";
     string port = builder.Configuration["UsersMicroservicePort"] ?? "8080";
 
-    client.BaseAddress = new Uri($"http://{host}:{port}");
+    client.BaseAddress = new Uri($"http://{host}:{port}/");
+});
+
+// Add HttpClient for ProductsMicroserviceClient
+builder.Services.AddHttpClient<ProductsMicroserviceClient>(client =>
+{
+    string host = builder.Configuration["ProductsMicroserviceName"] ?? "localhost";
+    string port = builder.Configuration["ProductsMicroservicePort"] ?? "8080";
+
+    client.BaseAddress = new Uri($"http://{host}:{port}/");
 });
 
 var app = builder.Build();
