@@ -1,7 +1,9 @@
 using BusinessLogicLayer;
 using BusinessLogicLayer.HttpClients;
+using BusinessLogicLayer.Policies;
 using DataAccessLayer;
 using OrdersService.API.Middleware;
+using Polly;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -43,7 +45,17 @@ builder.Services.AddHttpClient<UsersMicroserviceClient>(client =>
     string host = builder.Configuration["UsersMicroserviceName"] ?? "localhost";
     string port = builder.Configuration["UsersMicroservicePort"] ?? "8080";
 
-    client.BaseAddress = new Uri($"http://{host}:{port}/");
+    client.BaseAddress = new Uri($"http://{host}:{port}");
+}).AddPolicyHandler((services, request) =>
+{
+    var policies = services.GetRequiredService<IUsersMicroservicePolicies>();
+
+    return policies.GetRetryPolicy();
+}).AddPolicyHandler((services, request) =>
+{
+    var policies = services.GetRequiredService<IUsersMicroservicePolicies>();
+
+    return policies.GetCircuitBreakerPolicy();
 });
 
 // Add HttpClient for ProductsMicroserviceClient
@@ -53,6 +65,11 @@ builder.Services.AddHttpClient<ProductsMicroserviceClient>(client =>
     string port = builder.Configuration["ProductsMicroservicePort"] ?? "8080";
 
     client.BaseAddress = new Uri($"http://{host}:{port}/");
+}).AddPolicyHandler((services, request) =>
+{
+    var policies = services.GetRequiredService<IProductsMicroservicePolicies>();
+
+    return policies.GetFallbackPolicy();
 });
 
 var app = builder.Build();

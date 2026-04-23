@@ -14,7 +14,7 @@ public class ProductsMicroserviceClient
 
     public async Task<ProductDTO?> GetProductById(Guid productID)
     {
-        HttpResponseMessage response = await _httpClient.GetAsync($"api/products/search/product-id/{productID}");
+        HttpResponseMessage response = await _httpClient.GetAsync($"/api/products/search/product-id/{productID}");
 
         if (!response.IsSuccessStatusCode)
         {

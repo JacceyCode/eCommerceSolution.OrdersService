@@ -1,4 +1,5 @@
 using BusinessLogicLayer.Mappers;
+using BusinessLogicLayer.Policies;
 using BusinessLogicLayer.ServiceContracts;
 using BusinessLogicLayer.Services;
 using BusinessLogicLayer.Validators;
@@ -20,6 +21,11 @@ public static class DependencyInjection
         services.AddValidatorsFromAssemblyContaining<OrderAddRequestValidator>();
 
         services.AddScoped<IOrdersService, OrdersService>();
+
+
+        // Add service policy as a transcient service
+        services.AddTransient<IUsersMicroservicePolicies, UsersMicroservicePolicies>();
+        services.AddTransient<IProductsMicroservicePolicies, ProductsMicroservicePolicies>();
 
         return services;
     }
