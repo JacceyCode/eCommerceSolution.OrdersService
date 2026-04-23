@@ -28,6 +28,16 @@ public static class DependencyInjection
         services.AddTransient<IProductsMicroservicePolicies, ProductsMicroservicePolicies>();
         services.AddTransient<IPollyPolicies, PollyPolicies>();
 
+        // Redis cache configuration
+        services.AddStackExchangeRedisCache(options =>
+        {
+            string redisHost = configuration["Redis_Host"] ?? "localhost";
+            string redisPort = configuration["Redis_Port"] ?? "6379";
+
+
+            options.Configuration = $"{redisHost}:{redisPort}";
+        });
+
         return services;
     }
 }

@@ -3,7 +3,7 @@ name: dotnet-ecommerce-microservice
 services:
   mongodb-container:
     image: mongo:latest
-    restart: unless-stopped
+    # restart: unless-stopped
     ports:
       - "27018:27017"
     volumes:
@@ -24,6 +24,8 @@ services:
       - ProductsMicroserviceName=${PRODUCTS_MICROSERVICE_NAME}
       - ProductsMicroservicePort=${PRODUCTS_MICROSERVICE_PORT}
       - MongoDBDatabaseName=${MONGODB_DATABASE_NAME}
+      - Redis_Host=${REDIS_HOST}
+      - Redis_Port=${REDIS_PORT}
     env_file:
       - .env
     ports:
@@ -36,7 +38,7 @@ services:
 
   mysql-container:
     image: mysql:latest
-    restart: unless-stopped
+    # restart: unless-stopped
     environment:
       - MYSQL_ROOT_PASSWORD=${PRODUCTS_DATABASE_ROOT_PASSWORD}
     env_file:
@@ -69,7 +71,7 @@ services:
 
   postgres-container:
     image: postgres:latest
-    restart: unless-stopped
+    # restart: unless-stopped
     environment:
       - POSTGRES_PASSWORD=${USERS_DATABASE_ROOT_PASSWORD}
       # this line creates the database automatically when the container starts, using the value from the .env file
@@ -100,6 +102,16 @@ services:
       - postgres-container
     networks:
       - users-microservice-network
+      - ecommerce-network
+
+  redis:
+    image: redis:latest
+    # restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - C:/Users/Jaccey/Desktop/csharp/eCommerce/redis-cache:/data
+    networks:
       - ecommerce-network
 
 networks:

@@ -82,7 +82,7 @@ public class PollyPolicies : IPollyPolicies
                     QuantityInStock: 0
                 );
 
-                return new HttpResponseMessage(HttpStatusCode.OK)
+                return new HttpResponseMessage(HttpStatusCode.ServiceUnavailable)
                 {
                     Content = new StringContent(JsonSerializer.Serialize(product), Encoding.UTF8, "application/json")
                 };
