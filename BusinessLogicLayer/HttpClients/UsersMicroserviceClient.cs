@@ -1,6 +1,7 @@
 using BusinessLogicLayer.DTO;
 using Microsoft.Extensions.Logging;
 using Polly.CircuitBreaker;
+using Polly.Timeout;
 using System.Net.Http.Json;
 
 namespace BusinessLogicLayer.HttpClients;
@@ -59,11 +60,24 @@ public class UsersMicroserviceClient
         catch (BrokenCircuitException ex)
         {
             _logger.LogError(ex, "Circuit breaker is open. Users microservice is temporarily unavailable, returning dummy data.");
+
             // return fault data
             return new UserDTO(
-                PersonName: "Temporarily Unavailable",
-                Email: "Temporarily Unavailable",
-                Gender: "Temporarily Unavailable",
+                PersonName: "Temporarily Unavailable (circuit breaker)",
+                Email: "Temporarily Unavailable (circuit breaker)",
+                Gender: "Temporarily Unavailable (circuit breaker)",
+                UserID: Guid.Empty
+                );
+        }
+        catch (TimeoutRejectedException ex)
+        {
+            _logger.LogError(ex, "Timeout exception occurred while fetching user data, returning dummy data.");
+
+            // return fault data
+            return new UserDTO(
+                PersonName: "Temporarily Unavailable (timeout)",
+                Email: "Temporarily Unavailable (timeout)",
+                Gender: "Temporarily Unavailable (timeout)",
                 UserID: Guid.Empty
                 );
         }

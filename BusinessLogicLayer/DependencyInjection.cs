@@ -26,6 +26,7 @@ public static class DependencyInjection
         // Add service policy as a transcient service
         services.AddTransient<IUsersMicroservicePolicies, UsersMicroservicePolicies>();
         services.AddTransient<IProductsMicroservicePolicies, ProductsMicroservicePolicies>();
+        services.AddTransient<IPollyPolicies, PollyPolicies>();
 
         return services;
     }

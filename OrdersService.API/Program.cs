@@ -50,12 +50,7 @@ builder.Services.AddHttpClient<UsersMicroserviceClient>(client =>
 {
     var policies = services.GetRequiredService<IUsersMicroservicePolicies>();
 
-    return policies.GetRetryPolicy();
-}).AddPolicyHandler((services, request) =>
-{
-    var policies = services.GetRequiredService<IUsersMicroservicePolicies>();
-
-    return policies.GetCircuitBreakerPolicy();
+    return policies.GetCombinedPolicy();
 });
 
 // Add HttpClient for ProductsMicroserviceClient
@@ -69,7 +64,7 @@ builder.Services.AddHttpClient<ProductsMicroserviceClient>(client =>
 {
     var policies = services.GetRequiredService<IProductsMicroservicePolicies>();
 
-    return policies.GetFallbackPolicy();
+    return policies.GetCombinedPolicy();
 });
 
 var app = builder.Build();
