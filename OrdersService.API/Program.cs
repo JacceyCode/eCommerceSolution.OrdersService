@@ -42,7 +42,7 @@ builder.Services.AddCors(options =>
 // Add HttpClient for UsersMicroserviceClient
 builder.Services.AddHttpClient<UsersMicroserviceClient>(client =>
 {
-    string host = builder.Configuration["UsersMicroserviceName"] ?? "localhost";
+    string host = builder.Configuration["UsersMicroserviceName"] ?? "apigateway";
     string port = builder.Configuration["UsersMicroservicePort"] ?? "8080";
 
     client.BaseAddress = new Uri($"http://{host}:{port}");
@@ -56,7 +56,7 @@ builder.Services.AddHttpClient<UsersMicroserviceClient>(client =>
 // Add HttpClient for ProductsMicroserviceClient
 builder.Services.AddHttpClient<ProductsMicroserviceClient>(client =>
 {
-    string host = builder.Configuration["ProductsMicroserviceName"] ?? "localhost";
+    string host = builder.Configuration["ProductsMicroserviceName"] ?? "apigateway";
     string port = builder.Configuration["ProductsMicroservicePort"] ?? "8080";
 
     client.BaseAddress = new Uri($"http://{host}:{port}/");
@@ -83,7 +83,7 @@ app.UseSwaggerUI();
 app.UseCors();
 
 // Auth
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 

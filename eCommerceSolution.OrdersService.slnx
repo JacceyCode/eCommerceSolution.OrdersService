@@ -2,6 +2,7 @@
   <Folder Name="/Solution Items/">
     <File Path=".env" />
   </Folder>
+  <Project Path="ApiGateway/ApiGateway.csproj" Id="b18575cc-0bf8-4c33-a1d8-29a0a6578661" />
   <Project Path="BusinessLogicLayer/BusinessLogicLayer.csproj" />
   <Project Path="DataAccessLayer/DataAccessLayer.csproj" />
   <Project Path="docker-compose.dcproj">
