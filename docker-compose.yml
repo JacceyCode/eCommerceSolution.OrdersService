@@ -26,6 +26,11 @@ services:
       - MongoDBDatabaseName=${MONGODB_DATABASE_NAME}
       - Redis_Host=${REDIS_HOST}
       - Redis_Port=${REDIS_PORT}
+      - RabbitMQ_HostName=${RABBITMQ_HOSTNAME}
+      - RabbitMQ_UserName=${RABBITMQ_DEFAULT_USER}
+      - RabbitMQ_Password=${RABBITMQ_DEFAULT_PASS}
+      - RabbitMQ_Port=${RABBITMQ_PORT}
+      - RabbitMQ_Products_Exchange_Name=${RABBITMQ_PRODUCTS_EXCHANGE_NAME}
     env_file:
       - .env
     ports:
@@ -61,6 +66,11 @@ services:
       - ASPNETCORE_HTTP_PORTS=8080
       - ASPNETCORE_ENVIRONMENT=Development
       - ConnectionStrings__DefaultConnection=${PRODUCTS_DB_CONNECTION_STRING}
+      - RabbitMQ_HostName=${RABBITMQ_HOSTNAME}
+      - RabbitMQ_UserName=${RABBITMQ_DEFAULT_USER}
+      - RabbitMQ_Password=${RABBITMQ_DEFAULT_PASS}
+      - RabbitMQ_Port=${RABBITMQ_PORT}
+      - RabbitMQ_Products_Exchange_Name=${RABBITMQ_PRODUCTS_EXCHANGE_NAME}
     env_file:
       - .env
     depends_on:
@@ -121,6 +131,19 @@ services:
       dockerfile: Dockerfile
     ports:
       - "4000:8080"
+    networks:
+      - ecommerce-network
+
+  rabbitmq:
+    image: rabbitmq:3.13-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
+    env_file:
+      - .env
     networks:
       - ecommerce-network
 
