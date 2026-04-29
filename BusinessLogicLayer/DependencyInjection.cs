@@ -1,5 +1,6 @@
 using BusinessLogicLayer.Mappers;
 using BusinessLogicLayer.Policies;
+using BusinessLogicLayer.RabbitMQ;
 using BusinessLogicLayer.ServiceContracts;
 using BusinessLogicLayer.Services;
 using BusinessLogicLayer.Validators;
@@ -37,6 +38,12 @@ public static class DependencyInjection
 
             options.Configuration = $"{redisHost}:{redisPort}";
         });
+
+        // Add consumer class
+        services.AddTransient<IRabbitMQConsumer, RabbitMQConsumer>();
+
+        // Add hosted service
+        services.AddHostedService<RabbitMQProductNameUpdateHostedService>();
 
         return services;
     }
