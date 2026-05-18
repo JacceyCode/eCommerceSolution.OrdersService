@@ -3,16 +3,23 @@ name: dotnet-ecommerce-microservice
 services:
   mongodb-container:
     image: mongo:latest
-    # restart: unless-stopped
+    restart: unless-stopped
     ports:
       - "27018:27017"
     volumes:
       - ../mongo-init:/docker-entrypoint-initdb.d
     networks:
       - orders-microservice-network
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')", "--quiet"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
 
   ordersservice.api:
     image: ordersserviceapi
+    restart: unless-stopped
     build:
       context: .
       dockerfile: OrdersService.API/Dockerfile
@@ -36,14 +43,24 @@ services:
     ports:
       - "7000:8080"
     depends_on:
-      - mongodb-container
+      mongodb-container:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     networks:
-      - orders-microservice-network
       - ecommerce-network
+      - orders-microservice-network
+    # healthcheck:
+    #   test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+    #   interval: 10s
+    #   timeout: 5s
+    #   retries: 3
 
   mysql-container:
     image: mysql:latest
-    # restart: unless-stopped
+    restart: unless-stopped
     environment:
       - MYSQL_ROOT_PASSWORD=${PRODUCTS_DATABASE_ROOT_PASSWORD}
     env_file:
@@ -54,9 +71,16 @@ services:
       - ../mysql-init:/docker-entrypoint-initdb.d
     networks:
       - products-microservice-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
 
   products-microservice:
     image: productsserviceapi
+    restart: unless-stopped
     build:
       context: ../eCommerceSolution.ProductsService
       dockerfile: ProductsService.API/Dockerfile
@@ -74,14 +98,17 @@ services:
     env_file:
       - .env
     depends_on:
-      - mysql-container
+      mysql-container:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
     networks:
-      - products-microservice-network
       - ecommerce-network
+      - products-microservice-network
 
   postgres-container:
     image: postgres:latest
-    # restart: unless-stopped
+    restart: unless-stopped
     environment:
       - POSTGRES_PASSWORD=${USERS_DATABASE_ROOT_PASSWORD}
       # this line creates the database automatically when the container starts, using the value from the .env file
@@ -94,9 +121,16 @@ services:
       - ../postgres-init:/docker-entrypoint-initdb.d
     networks:
       - users-microservice-network
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
 
   users-microservice:
     image: usersserviceapi
+    restart: unless-stopped
     build:
       context: ../eCommerceSolution.UsersService
       dockerfile: eCommerce.API/Dockerfile
@@ -109,26 +143,40 @@ services:
     env_file:
       - .env
     depends_on:
-      - postgres-container
+      postgres-container:
+        condition: service_healthy
     networks:
-      - users-microservice-network
       - ecommerce-network
+      - users-microservice-network
 
   redis:
     image: redis:latest
-    # restart: unless-stopped
+    restart: unless-stopped
     ports:
       - "6379:6379"
     volumes:
       - C:/Users/Jaccey/Desktop/csharp/eCommerce/redis-cache:/data
     networks:
       - ecommerce-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
 
   apigateway:
     image: apigateway
     build:
       context: ./ApiGateway
       dockerfile: Dockerfile
+    depends_on:
+      ordersservice.api:
+        condition: service_started
+      products-microservice:
+        condition: service_started
+      users-microservice:
+        condition: service_started
     ports:
       - "4000:8080"
     networks:
@@ -136,6 +184,7 @@ services:
 
   rabbitmq:
     image: rabbitmq:3.13-management
+    restart: unless-stopped
     ports:
       - "5672:5672"
       - "15672:15672"
@@ -146,6 +195,12 @@ services:
       - .env
     networks:
       - ecommerce-network
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "check_port_connectivity"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 90s
 
 networks:
   ecommerce-network:

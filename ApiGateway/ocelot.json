@@ -86,26 +86,26 @@
         }
       ],
       "UpstreamHttpMethod": [ "Get", "Post", "Put", "Options" ],
-      "UpstreamScheme": "http",
-      "QoSOptions": {
-        "ExceptionsAllowedBeforeBreaking": 3,
-        "DurationOfBreak": 10000,
-        "TimeoutValue": 5000
-      },
-      "RetryOptions": {
-        "RetryCount": 3,
-        "RetryOnServerError": true,
-        "RetryBackOffPeriod": 2000,
-        "RetryExponentialBackOff": true,
-        "ExponentialBackOffPower": 2
-      },
-      "RateLimitOptions": {
-        "Limit": 3,
-        "Period": "1m",
-        "HttpStatusCode": 429,
-        "EnableRateLimiting": true,
-        "PeriodTimespan": 30
-      }
+      "UpstreamScheme": "http"
+      //"QoSOptions": {
+      //  "ExceptionsAllowedBeforeBreaking": 3,
+      //  "DurationOfBreak": 10000,
+      //  "TimeoutValue": 5000
+      //},
+      //"RetryOptions": {
+      //  "RetryCount": 3,
+      //  "RetryOnServerError": true,
+      //  "RetryBackOffPeriod": 2000,
+      //  "RetryExponentialBackOff": true,
+      //  "ExponentialBackOffPower": 2
+      //},
+      //"RateLimitOptions": {
+      //  "Limit": 3,
+      //  "Period": "1m",
+      //  "HttpStatusCode": 429,
+      //  "EnableRateLimiting": true,
+      //  "PeriodTimespan": 30
+      //}
     },
     {
       "DownstreamPathTemplate": "/api/products/search/product-id/{productID}",

@@ -8,6 +8,9 @@ using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Ensure .NET reads the container's OS environment variables
+builder.Configuration.AddEnvironmentVariables();
+
 // Add BusinessLogicLayer and DataAccessLAyer
 builder.Services.AddBusinessLogicLayer(builder.Configuration);
 builder.Services.AddDataAccessLayer(builder.Configuration);
