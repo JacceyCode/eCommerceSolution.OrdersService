@@ -2,6 +2,7 @@ using BusinessLogicLayer;
 using BusinessLogicLayer.HttpClients;
 using BusinessLogicLayer.Policies;
 using DataAccessLayer;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using OrdersService.API.Middleware;
 using Polly;
 using System.Text.Json.Serialization;
@@ -92,6 +93,13 @@ app.UseAuthorization();
 
 // Map controllers
 app.MapControllers();
+
+// Map health checks
+app.MapHealthChecks("/health");
+app.MapHealthChecks("/health/ready", new HealthCheckOptions
+{
+    Predicate = (check) => check.Tags.Contains("ready") || check.Tags.Contains("db") || check.Tags.Contains("messaging") || check.Tags.Contains("cache")
+});
 
 
 app.UseDeveloperExceptionPage();

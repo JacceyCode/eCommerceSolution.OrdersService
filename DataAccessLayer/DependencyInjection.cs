@@ -12,13 +12,14 @@ public static class DependencyInjection
         string connectionString = configuration.GetConnectionString("MongoDB") ?? throw new InvalidOperationException("Connection string 'MongoDB' not found.");
         string databaseName = configuration["MongoDBDatabaseName"] ?? throw new InvalidOperationException("MongoDB database name not found in configuration.");
 
-        services.AddSingleton<IMongoClient>(new MongoClient(connectionString));
+        services.AddSingleton<IMongoClient>(new MongoClient(connectionString))
+            .AddHealthChecks() // This adds health checks for MongoDB
+            .AddMongoDb(); // This registers the MongoDB health check
 
         services.AddScoped<IMongoDatabase>(provider =>
         {
             IMongoClient client = provider.GetRequiredService<IMongoClient>();
 
-            //return client.GetDatabase("OrdersDatabase");
             return client.GetDatabase(databaseName);
         });
 

@@ -45,6 +45,16 @@ public static class DependencyInjection
         // Add hosted service
         services.AddHostedService<RabbitMQProductNameUpdateHostedService>();
 
+        // Add heath checks for dependent services
+        services.AddHealthChecks()
+            .AddRedis(options =>
+        {
+            string redisHost = configuration["Redis_Host"] ?? "localhost";
+            string redisPort = configuration["Redis_Port"] ?? "6379";
+
+            return $"{redisHost}:{redisPort}";
+        });
+
         return services;
     }
 }

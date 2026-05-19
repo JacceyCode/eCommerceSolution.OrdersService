@@ -3,7 +3,7 @@ name: dotnet-ecommerce-microservice
 services:
   mongodb-container:
     image: mongo:latest
-    restart: unless-stopped
+    # restart: unless-stopped
     ports:
       - "27018:27017"
     volumes:
@@ -19,7 +19,7 @@ services:
 
   ordersservice.api:
     image: ordersserviceapi
-    restart: unless-stopped
+    # restart: unless-stopped
     build:
       context: .
       dockerfile: OrdersService.API/Dockerfile
@@ -52,15 +52,16 @@ services:
     networks:
       - ecommerce-network
       - orders-microservice-network
-    # healthcheck:
-    #   test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
-    #   interval: 10s
-    #   timeout: 5s
-    #   retries: 3
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 180s
 
   mysql-container:
     image: mysql:latest
-    restart: unless-stopped
+    # restart: unless-stopped
     environment:
       - MYSQL_ROOT_PASSWORD=${PRODUCTS_DATABASE_ROOT_PASSWORD}
     env_file:
@@ -80,7 +81,7 @@ services:
 
   products-microservice:
     image: productsserviceapi
-    restart: unless-stopped
+    # restart: unless-stopped
     build:
       context: ../eCommerceSolution.ProductsService
       dockerfile: ProductsService.API/Dockerfile
@@ -108,7 +109,7 @@ services:
 
   postgres-container:
     image: postgres:latest
-    restart: unless-stopped
+    # restart: unless-stopped
     environment:
       - POSTGRES_PASSWORD=${USERS_DATABASE_ROOT_PASSWORD}
       # this line creates the database automatically when the container starts, using the value from the .env file
@@ -130,7 +131,7 @@ services:
 
   users-microservice:
     image: usersserviceapi
-    restart: unless-stopped
+    # restart: unless-stopped
     build:
       context: ../eCommerceSolution.UsersService
       dockerfile: eCommerce.API/Dockerfile
@@ -151,7 +152,7 @@ services:
 
   redis:
     image: redis:latest
-    restart: unless-stopped
+    # restart: unless-stopped
     ports:
       - "6379:6379"
     volumes:
@@ -184,7 +185,7 @@ services:
 
   rabbitmq:
     image: rabbitmq:3.13-management
-    restart: unless-stopped
+    # restart: unless-stopped
     ports:
       - "5672:5672"
       - "15672:15672"
