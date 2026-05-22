@@ -95,7 +95,7 @@ app.UseAuthorization();
 app.MapControllers();
 
 // Map health checks
-app.MapHealthChecks("/health");
+app.MapHealthChecks("/health", new() { AllowCachingResponses = false });
 app.MapHealthChecks("/health/ready", new HealthCheckOptions
 {
     Predicate = (check) => check.Tags.Contains("ready") || check.Tags.Contains("db") || check.Tags.Contains("messaging") || check.Tags.Contains("cache")
